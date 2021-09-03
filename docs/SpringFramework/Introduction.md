@@ -22,7 +22,7 @@ Let's solve this by creating java classes as mentioned below
       public class VideoLibrary{
         Movies movies;
         public VideoLibrary() {
-         <b>movies = new BollywoodMovies();</b>
+         movies = new BollywoodMovies(); //movies variable is 
         }
         public void InCinema()
         {
@@ -71,7 +71,7 @@ Let's solve this by creating java classes as mentioned below
 ```java
    public class VideoLibrary {
          Movies movies; 
-     public VideoLibrary(Movies watchmovie) {
+     public VideoLibrary(Movies watchmovie) { //Created a parameterized constructor for loosely couple
          movies = watchmovie;
            }
          
@@ -88,6 +88,8 @@ Let's solve this by creating java classes as mentioned below
 
 }
 ```
-```
+### Spring Framework
+  Spring Framework Identifies the dependencies using Dependency Injection. 
+
 
 
