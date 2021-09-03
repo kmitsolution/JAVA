@@ -35,10 +35,7 @@ Let's solve this by creating java classes as mentioned below
 	      }
       }
 
-      abstract class Movies{
-
-      }
-      abstract class Movies{
+     abstract class Movies{
         abstract void watch();
       }
       class BollywoodMovies extends Movies {
