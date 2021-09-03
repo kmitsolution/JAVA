@@ -57,15 +57,17 @@ import org.springframework.stereotype.Component;
 public class VideoLibrary {
 	@Autowired
 	Movies movies; 
-    public VideoLibrary(Movies watchmovie) { //Created a parameterized constructor for loosely couple
+    public VideoLibrary(Movies watchmovie) { //Created a parameterized constructor for loosely couple and called Constructor Autowiring
         movies = watchmovie;
           }
+   	  
         
     public void InCinema() {
         movies.watch();
           }
 }
 ```
+ <b> Note:-</b> We can remove constructor and either use the setter method or even if we are not using the setter method, framework automatically makes property as Dependent property  
 
 ```java
 //FirstProjectApplication.java class  (main class to implement)
