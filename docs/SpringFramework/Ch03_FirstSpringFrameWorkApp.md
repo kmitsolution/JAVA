@@ -12,9 +12,11 @@ public abstract class Movies {
 // BollywoodMovies.java (A bean class)
 package com.kmit.spring.FirstProject;
 
+import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
 @Component
+@Primary
 public class BollywoodMovies extends Movies {
 
 	@Override
@@ -27,12 +29,12 @@ public class BollywoodMovies extends Movies {
 ```
 
 ```java
-// HollywoodMovies.java class (it is not a bean class but it a child class of Movies)
+// HollywoodMovies.java class 
 package com.kmit.spring.FirstProject;
 
 import org.springframework.stereotype.Component;
 
-
+@Component
 public class HollywoodMovies extends Movies {
 
     @Override
