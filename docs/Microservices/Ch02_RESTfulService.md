@@ -324,9 +324,26 @@ public void createUser(@RequestBody User user) {
 ```
 <b>Rest API Client</b> I am using Postman for POST Method (http://localhost:8080/user) and Add below body
 
-```java
+```json
 {"name":"Rohit","birthDate":"2021-09-12T09:48:11.221+00:00"}
 ```
 
 ### Run Get/users method and you should be able to newly created record.
 
+### Step 9:- Return Status code(201) and Userid(Check header's location) from the POST Request.
+
+```java
+import java.net.URI;
+
+@PostMapping("/users")
+	public ResponseEntity<Object> createUser(@RequestBody User user) {
+		User saveduser=service.save(user);
+		 URI location = ServletUriComponentsBuilder
+				.fromCurrentRequest()
+				.path("{id}")
+				.buildAndExpand(saveduser.getId()).toUri();
+		return ResponseEntity.created(location).build();
+	}
+```	
+
+### Step 10:- Exception Handling using GET Method
