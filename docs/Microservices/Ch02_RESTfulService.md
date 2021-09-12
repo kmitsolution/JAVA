@@ -347,3 +347,285 @@ import java.net.URI;
 ```	
 
 ### Step 10:- Exception Handling using GET Method
+
+Update the below code for GET method.
+
+```java
+package com.java.restful.webservice.restwebservice.user;
+
+public class UserNotFoundException extends RuntimeException {
+
+	public UserNotFoundException(String message) {
+		// TODO Auto-generated constructor stub
+		super(message);
+	}
+
+}
+```
+```java
+@GetMapping("/users/{id}")
+	public User retrieveUser(@PathVariable int id) {
+		User user = service.findOne(id);
+		if (user==null)
+			throw new UserNotFoundException("id-" + id);
+		return user;
+	}
+```
+
+<b> Run GET Request for a user which does not exist and You will recieve 500 internal error </b></br>
+Now lets make it more meaningful error message, make below changes (Add @ResponseStatus(HttpStatus.NOT_FOUND)) to UserNotFoundException and Now You will return 404 Error and also check message and path, it should return id which we are searching.
+
+```java
+@ResponseStatus(HttpStatus.NOT_FOUND)
+public class UserNotFoundException extends RuntimeException {
+
+	public UserNotFoundException(String message) {
+		// TODO Auto-generated constructor stub
+		super(message);
+	}
+
+}
+```
+
+### Step 10 Create a Generic Exeception
+
+Create a Generic Exception class
+
+```java
+package com.java.restful.webservice.restwebservice.exception;
+
+import java.util.Date;
+
+public class ExceptionResponse {
+
+	private Date timestamp;
+	private String message;
+	private String details;
+	public ExceptionResponse(Date timestamp, String message, String details) {
+		super();
+		this.timestamp = timestamp;
+		this.message = message;
+		this.details = details;
+	}
+	public Date getTimestamp() {
+		return timestamp;
+	}
+	public void setTimestamp(Date timestamp) {
+		this.timestamp = timestamp;
+	}
+	public String getMessage() {
+		return message;
+	}
+	public void setMessage(String message) {
+		this.message = message;
+	}
+	public String getDetails() {
+		return details;
+	}
+	public void setDetails(String details) {
+		this.details = details;
+	}
+	
+}
+
+```
+
+```java
+package com.java.restful.webservice.restwebservice.exception;
+
+import java.util.Date;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import com.java.restful.webservice.restwebservice.user.UserNotFoundException;
+
+@ControllerAdvice //Global Exception Handling 
+@RestController
+public class GenericException extends ResponseEntityExceptionHandler{
+	
+	//It is for all Exception
+	@ExceptionHandler(Exception.class)
+	public final ResponseEntity<Object> handleAllExceptions(Exception ex,WebRequest request)
+	{
+		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(),
+				ex.getMessage(),
+				request.getDescription(false));
+		
+		return new ResponseEntity(exceptionResponse,HttpStatus.INTERNAL_SERVER_ERROR);
+		
+	}
+
+	//It is more specific to USER Class Exception
+	@ExceptionHandler(UserNotFoundException.class)
+	public final ResponseEntity<Object> handleUserNotFoundException(UserNotFoundException ex,WebRequest request)
+	{
+		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(),
+				ex.getMessage(),
+				request.getDescription(false));
+		
+		return new ResponseEntity(exceptionResponse,HttpStatus.NOT_FOUND);
+		
+	}
+}
+
+
+```
+
+<b>Now Run the API with GET Method like localhost:8080/users/500 it should return customized error message.</b>
+
+### Step 11 :- Implement Delete Method
+
+Modify UserDaoService by adding deleteById method
+
+```java
+package com.java.restful.webservice.restwebservice.user;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
+import org.springframework.stereotype.Component;
+
+
+
+@Component
+public class UserDaoService {
+
+	private static List<User> users = new ArrayList<>();
+
+	private static int usersCount = 3;
+
+	static {
+		users.add(new User(1, "Raman", new Date()));
+		users.add(new User(2, "Manoj", new Date()));
+		users.add(new User(3, "Raj", new Date()));
+	}
+
+
+	public User save(User user) {
+		if (user.getId() == null) {
+			user.setId(++usersCount);
+		}
+		users.add(user);
+		return user;
+	}
+
+	
+	public List<User> findAll() {
+		// TODO Auto-generated method stub
+		return users;
+	}
+
+	public User findOne(int id) {
+		// TODO Auto-generated method stub
+		for (User user : users) {
+			if (user.getId() == id) {
+				return user;
+			}
+		}
+		return null;
+	}
+	
+	public User deleteById(int id) {
+		// TODO Auto-generated method stub
+		Iterator<User> iterator =users.iterator();
+		while (iterator.hasNext())
+		 {
+			User user=iterator.next();
+			if (user.getId() == id) {
+				iterator.remove();
+				return user;
+			}
+		}
+		return null;
+	}
+}
+
+```
+
+<b> Add @DeleteMapping</b>
+
+```java
+package com.java.restful.webservice.restwebservice.user;
+
+
+import java.net.URI;
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+
+
+
+
+
+@RestController
+public class UserResource {
+
+	@Autowired
+	private UserDaoService service;
+
+	@GetMapping("/users")
+	public List<User> retrieveAllUsers() {
+		return service.findAll();
+	}
+
+	@GetMapping("/users/{id}")
+	public User retrieveUser(@PathVariable int id) {
+		User user = service.findOne(id);
+		if (user==null)
+			throw new UserNotFoundException("id-" + id);
+		return user;
+	}
+	@PostMapping("/users")
+	public ResponseEntity<Object> createUser(@RequestBody User user) {
+		User saveduser=service.save(user);
+		 URI location = ServletUriComponentsBuilder
+				.fromCurrentRequest()
+				.path("{id}")
+				.buildAndExpand(saveduser.getId()).toUri();
+		return ResponseEntity.created(location).build();
+	}
+	
+	@DeleteMapping("/users/{id}")
+	public void deleteUser(@PathVariable int id) {
+		User user = service.deleteById(id);
+		if (user==null)
+			throw new UserNotFoundException("id-" + id);
+		
+	}
+
+}
+```
+
+<b>Check DELETE Method in Postman and it should delete the existing id and if no id found then it should throw the exception </b>
+
+### Step 12: Adding Validation Dependency
+
+Add below entry in pom.xml
+``` xml
+<dependency>
+  <groupId>org.springframework.boot</groupId>
+  <artifactId>spring-boot-starter-validation</artifactId>
+</dependency>
+```
+	
+
+
+
+
