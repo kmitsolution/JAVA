@@ -18,7 +18,7 @@ RESTful web services are built to work best on the Web. Representational State T
   <li>Open https://start.spring.io/ </li>
   <li>Create a Maven project with latest Release version(2.54)</li>
   <li>Add Dependencies ( Web and Spring DevOps Tools,JPA,H2 Database) </li>
-  <li>Generate the project (Java 11 or java 8)</li>
+  <li>Generate the project (Java 11 or java 8) I am creating with package com.java.restful.webservice.restwebservice</li>
   <li> Extract the downloaded zip file </li>
   <li> Open this project in Eclipse IDE (File-->Import) </li>
   <li> Check pom.xml and you will observe that all the depenencies has been added. </li>
@@ -134,4 +134,199 @@ public class HelloWorld {
 
 {"message":"Hello World Bean"}
 
+### Step 5 :- Understandand internal working of this project
+
+1. Add <b>logging.level.org.springframework = debug</b>   in application.properties file. <br/>
+2. Run the application and Copy the logs into a Notepad file and lets observe that.  <br/>
+3. Search text CONDITIONS EVALUATION REPORT in the file.  <br/>
+4. In pom.xml file we have added a dependency <br/>
+```xml
+  <dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+```
+Hence the log indicates that a DispatcherServlet AutoConfiguration is found
+<b>DispatcherServletAutoConfiguration matched:</b>
+
+Also it configures the Error Configuration
+
+<b>ErrorMvcAutoConfiguration matched: </b> <br />
+<b>ErrorMvcAutoConfiguration#basicErrorController matched:</b> <br />
+<b>ErrorMvcAutoConfiguration#errorAttributes matched:</b> <br />
+<b>ErrorMvcAutoConfiguration.DefaultErrorViewResolverConfiguration#conventionErrorViewResolver matched: </b> <br />
+<b>ErrorMvcAutoConfiguration.WhitelabelErrorViewConfiguration matched:</b> <br />
+<b>HttpEncodingAutoConfiguration matched:</b> These methods are responsible to convert Bean to Json <br />
+<b>JacksonAutoConfiguration matched:</b> these configuration converts json to bean and bean to json.<br />
+<b>Mapping Servlet: </b> There is dispatcherServlet (FronController) to [/]. dispatcherServlet detects all Get,Put etc mapping.dispatcherServlet sends the response using @ResponseBody of @RestController (JacksonAutoConfiguration).
+
+### Step 6 :- Path Variable (@PathVariable)
+If you want to pass the parameter to service request then we use path variables eg /hello-world/name  so name is path variable
+```java
+  //URI - /hello-world/raman
+    @GetMapping(path="/hello-world/{name}")
+    public HelloWorldBean helloworldbeanPathVariable(@PathVariable String name) {
+    	return new HelloWorldBean(String.format("Name=%s", name));
+    }
+```
+<b>Output </b><br/>
+{"message":"Name=raman"}
+
+
+### Step 7 :- Create User Bean and User Service
+Create a User class and UserDaoService class
+
+```java
+package com.java.restful.webservice.restwebservice.user;
+
+import java.util.Date;
+
+public class User {
+
+	private Integer id;
+	private String name;
+	private Date birthDate;
+	
+	protected User() {
+		// TODO Auto-generated constructor stub
+	}
+	
+	public User(Integer id, String name, Date birthDate) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.birthDate = birthDate;
+	}
+	public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public Date getBirthDate() {
+		return birthDate;
+	}
+	public void setBirthDate(Date birthDate) {
+		this.birthDate = birthDate;
+	}
+	@Override
+	public String toString() {
+		return "User [id=" + id + ", name=" + name + ", birthDate=" + birthDate + "]";
+	}
+	
+}
+
+```
+
+```java
+package com.java.restful.webservice.restwebservice.user;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
+import org.springframework.stereotype.Component;
+
+
+
+@Component
+public class UserDaoService {
+
+	private static List<User> users = new ArrayList<>();
+
+	private static int usersCount = 3;
+
+	static {
+		users.add(new User(1, "Raman", new Date()));
+		users.add(new User(2, "Manoj", new Date()));
+		users.add(new User(3, "Raj", new Date()));
+	}
+
+	public List<User> findAll() {
+		return users;
+	}
+
+	public User save(User user) {
+		if (user.getId() == null) {
+			user.setId(++usersCount);
+		}
+		users.add(user);
+		return user;
+	}
+
+	public User findOne(int id) {
+		for (User user : users) {
+			if (user.getId() == id) {
+				return user;
+			}
+		}
+		return null;
+	}
+}
+
+```
+
+```java
+package com.java.restful.webservice.restwebservice.user;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class UserResource {
+
+	@Autowired
+	private UserDaoService service;
+
+	@GetMapping("/users")
+	public List<User> retrieveAllUsers() {
+		return service.findAll();
+	}
+
+	@GetMapping("/users/{id}")
+	public User retrieveUser(@PathVariable int id) {
+		return service.findOne(id);
+	}
+
+}
+```
+<b> Run the application </b> http://localhost:8080/users      
+
+#### Output will be
+```json
+[{"id":1,"name":"Raman","birthDate":"2021-09-12T09:48:11.221+00:00"},{"id":2,"name":"Manoj","birthDate":"2021-09-12T09:48:11.221+00:00"},{"id":3,"name":"Raj","birthDate":"2021-09-12T09:48:11.221+00:00"}]
+```
+http://localhost:8080/users/1
+
+```json
+{"id":1,"name":"Raman","birthDate":"2021-09-12T09:48:11.221+00:00"}
+```
+<b> Note: -> </b> Check the inspect on browser for http://localhost:8080/users and check the Network Element and You can see the response Body and Status code.
+
+### Step 8:- Implementing POST Method (To create user)
+
+Add @PostMapping to UserResource class
+```java
+@PostMapping("/users")
+public void createUser(@RequestBody User user) {
+	User saveduser=service.save(user);
+	}
+```
+<b>Rest API Client</b> I am using Postman for POST Method (http://localhost:8080/user) and Add below body
+
+```java
+{"name":"Rohit","birthDate":"2021-09-12T09:48:11.221+00:00"}
+```
+
+### Run Get/users method and you should be able to newly created record.
 
