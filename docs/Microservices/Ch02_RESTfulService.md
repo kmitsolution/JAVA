@@ -615,7 +615,7 @@ public class UserResource {
 
 <b>Check DELETE Method in Postman and it should delete the existing id and if no id found then it should throw the exception </b>
 
-### Step 12: Adding Validation Dependency
+### Step 12: Adding Validation Dependency ( To add java Validation API (@Valid which is present in javax.validation) to validate beans eg username should be min 2 Chars, DOB should be in Past)
 
 Add below entry in pom.xml
 ``` xml
@@ -624,8 +624,236 @@ Add below entry in pom.xml
   <artifactId>spring-boot-starter-validation</artifactId>
 </dependency>
 ```
-	
 
+#### Now let's add the Validation to User bean class.
+1. First change createuser method and add @Valid so that validation should be applied on POST method.
+
+```java
+	@PostMapping("/users")
+	public ResponseEntity<Object> createUser(@Valid @RequestBody User user) {
+		User saveduser=service.save(user);
+		 URI location = ServletUriComponentsBuilder
+				.fromCurrentRequest()
+				.path("{id}")
+				.buildAndExpand(saveduser.getId()).toUri();
+		return ResponseEntity.created(location).build();
+	}
+```
+
+2. Add validation to User class, on name @Size and on DOB @Past
+
+```java
+package com.java.restful.webservice.restwebservice.user;
+
+import java.util.Date;
+
+import javax.validation.constraints.Past;
+import javax.validation.constraints.Size;
+
+public class User {
+
+	private Integer id;
+	@Size(min = 2)
+	private String name;
+	@Past
+	private Date birthDate;
+	
+	public User(Integer id, String name, Date birthDate) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.birthDate = birthDate;
+	}
+	protected User() {
+		// TODO Auto-generated constructor stub
+	}
+	public Integer getId() {
+		return id;
+	}
+	public void setId(Integer id) {
+		this.id = id;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public Date getBirthDate() {
+		return birthDate;
+	}
+	public void setBirthDate(Date birthDate) {
+		this.birthDate = birthDate;
+	}
+	@Override
+	public String toString() {
+		return "User [id=" + id + ", name=" + name + ", birthDate=" + birthDate + "]";
+	}
+	
+}
+
+```
+
+3. Now Post Data with following values, You should get 400 Bad request
+```json
+{
+ 
+        "name": "R",
+        "birthDate": "2021-09-13T00:53:58.100+00:00"
+}
+```
+4. The result of above request is bad result but you as a consumer does not know that what is the exact error so you need to add customized Exception to Generic class.In ResponseEntityExceptionHandler class (Which we are extending for customized exception) there is a method called <b>handleMethodArgumentNotValid()</b>, which get triggered when validation happens, so we need to override this method in GenericException class.Also in the method you can use ex.getBindingResult() which returns that what goes wrong.
+
+```java
+package com.java.restful.webservice.restwebservice.exception;
+
+import java.util.Date;
+
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
+
+import com.java.restful.webservice.restwebservice.user.UserNotFoundException;
+
+@ControllerAdvice //Global Exception Handling 
+@RestController
+public class GenericException extends ResponseEntityExceptionHandler{
+	
+	//It is for all Exception
+	@ExceptionHandler(Exception.class)
+	public final ResponseEntity<Object> handleAllExceptions(Exception ex,WebRequest request)
+	{
+		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(),
+				ex.getMessage(),
+				request.getDescription(false));
+		
+		return new ResponseEntity(exceptionResponse,HttpStatus.INTERNAL_SERVER_ERROR);
+		
+	}
+
+	//It is more specific to USER Class Exception
+	@ExceptionHandler(UserNotFoundException.class)
+	public final ResponseEntity<Object> handleUserNotFoundException(UserNotFoundException ex,WebRequest request)
+	{
+		ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(),
+				ex.getMessage(),
+				request.getDescription(false));
+		
+		return new ResponseEntity(exceptionResponse,HttpStatus.NOT_FOUND);
+		
+	}
+	
+	@Override
+	protected ResponseEntity<Object> handleMethodArgumentNotValid(
+			MethodArgumentNotValidException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
+		
+				ExceptionResponse exceptionResponse = new ExceptionResponse(new Date(),
+				ex.getMessage(),
+				ex.getBindingResult().toString());
+				return new ResponseEntity(exceptionResponse,HttpStatus.NOT_FOUND);
+	}
+}
+
+```
+### Step 13: Implementing HATEOS(HyperMedia as the Engine of Application State) in RESTApi Services.
+
+1. Add HATEOAS dependency in pom.xml
+```xml
+<dependency>
+	<groupId>org.springframework.boot</groupId>
+	<artifactId>spring-boot-starter-hateoas</artifactId>
+</dependency>
+
+```
+2. You can use EntityModel from hateoas to return user data and additional information like link to all users data.
+3. Now lets modify retrieveUser method and return EntityModel. If you want to add link to model then you need to import WebMvcLinkBuilder and it has method linkTo which has the argument as <b>methodOn()</b> that represents which method you want to link.
+```java
+package com.java.restful.webservice.restwebservice.user;
+
+
+import java.net.URI;
+import java.util.List;
+
+import javax.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.EntityModel;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.*;
+import org.springframework.hateoas.server.mvc.WebMvcLinkBuilder;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+
+
+
+
+
+@RestController
+public class UserResource {
+
+	@Autowired
+	private UserDaoService service;
+
+	@GetMapping("/users")
+	public List<User> retrieveAllUsers() {
+		return service.findAll();
+	}
+
+	@GetMapping("/users/{id}")
+	public EntityModel<User> retrieveUser(@PathVariable int id) {
+		User user = service.findOne(id);
+		if (user==null)
+			throw new UserNotFoundException("id-" + id);
+		EntityModel<User> model= EntityModel.of(user);
+		WebMvcLinkBuilder linkToUsers = linkTo(methodOn(this.getClass()).retrieveAllUsers());
+		model.add(linkToUsers.withRel("all-users")); 
+		return model;
+	}
+	@PostMapping("/users")
+	public ResponseEntity<Object> createUser(@Valid @RequestBody User user) {
+		User saveduser=service.save(user);
+		 URI location = ServletUriComponentsBuilder
+				.fromCurrentRequest()
+				.path("{id}")
+				.buildAndExpand(saveduser.getId()).toUri();
+		return ResponseEntity.created(location).build();
+	}
+	
+	@DeleteMapping("/users/{id}")
+	public void deleteUser(@PathVariable int id) {
+		User user = service.deleteById(id);
+		if (user==null)
+			throw new UserNotFoundException("id-" + id);
+		
+	}
+
+}
+```
+4. Now run http://localhost:8080/users/1 GET Request and the Response Body will be like below
+```json
+{
+    "id": 1,
+    "name": "Raman",
+    "birthDate": "2021-09-13T05:32:22.010+00:00",
+    "_links": {
+        "all-users": {
+            "href": "http://localhost:8080/users"
+        }
+    }
+}
+```
 
 
 
