@@ -125,7 +125,8 @@ Set Interface extends Collection Interface and present in java.util package.
   <li>Set store elements in an unordered way.</li>
   <li>Set allows only one null value.</li>
   <li>Set is implemented by HashSet, LinkedHashSet, and TreeSet.</li>
-</ul>  
+</ul>
+
 ```java
  // We can create an instantiation of Set as below:
 
@@ -158,6 +159,7 @@ SortedSet Interface extends Set Interface. It’s having the following features:
   <li>SortedSet elements are arranged in the increasing (ascending) order.</li>
   <li>SortedSet provides additional methods that inhibit the natural ordering of the elements.</li>
 </ul>
+
 ```java
   //The SortedSet can be instantiated as:
 
