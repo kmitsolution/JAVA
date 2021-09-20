@@ -13,104 +13,249 @@ It provides multiple sorting sequences, i.e., you can sort the elements on the b
 <tr><td>public boolean equals(Object obj)	</td><td>It is used to compare the current object with the specified object.</td></tr>
 </table>
 
-### Collections class
-Collections class provides static methods for sorting the elements of a collection. If collection elements are of Set or Map, we can use TreeSet or TreeMap. However, we cannot sort the elements of List. Collections class provides methods for sorting the elements of List type elements also.
+A comparator interface is used to order the objects of user-defined classes. A comparator object is capable of comparing two objects of two different classes. Following function compare obj1 with obj2
 
-### Java Comparator Example (Non-generic Old Style)
-Let's see the example of sorting the elements of List on the basis of age and name. In this example, we have created 4 java classes:
-
-### Student.java
-### AgeComparator.java
-### NameComparator.java
-### Simple.java
-### Student.java
-This class contains three fields rollno, name and age and a parameterized constructor.
+Syntax: 
 ```java
-class Student{  
-int rollno;  
-String name;  
-int age;  
-Student(int rollno,String name,int age){  
-this.rollno=rollno;  
-this.name=name;  
-this.age=age;  
-}  
-}  
+public int compare(Object obj1, Object obj2):
 ```
 
-### AgeComparator.java
-This class defines comparison logic based on the age. If the age of the first object is greater than the second, we are returning a positive value. It can be anyone such as 1, 2, 10. If the age of the first object is less than the second object, we are returning a negative value, it can be any negative value, and if the age of both objects is equal, we are returning 0.
+Suppose we have an Array/ArrayList of our own class type, containing fields like roll no, name, address, DOB, etc, and we need to sort the array based on Roll no or name?
+
+ 
+<b>Method 1</b>: One obvious approach is to write our own sort() function using one of the standard algorithms. This solution requires rewriting the whole sorting code for different criteria like Roll No. and Name.
+
+<b>Method 2 </b>: Using comparator interface- Comparator interface is used to order the objects of a user-defined class. This interface is present in java.util package and contains 2 methods compare(Object obj1, Object obj2) and equals(Object element). Using a comparator, we can sort the elements based on data members. For instance, it may be on roll no, name, age, or anything else.
+
+### Method of Collections class for sorting List elements is used to sort the elements of List by the given comparator.  
+```java
+// To sort a given list. ComparatorClass must implement 
+// Comparator interface.
+public void sort(List list, ComparatorClass c)
+```
+##### How does Collections.Sort() work? 
+Internally the Sort method does call Compare method of the classes it is sorting. To compare two elements, it asks “Which is greater?” Compare method returns -1, 0, or 1 to say if it is less than, equal, or greater to the other. It uses this result to then determine if they should be swapped for their sort.
 
 ```java
-import java.util.*;  
-class AgeComparator implements Comparator{  
-public int compare(Object o1,Object o2){  
-Student s1=(Student)o1;  
-Student s2=(Student)o2;  
+
+// Java program to demonstrate working of Comparator
+// interface
+import java.io.*;
+import java.lang.*;
+import java.util.*;
   
-if(s1.age==s2.age)  
-return 0;  
-else if(s1.age>s2.age)  
-return 1;  
-else  
-return -1;  
-}  
-}  
+// A class to represent a student.
+class Student {
+    int rollno;
+    String name, address;
+  
+    // Constructor
+    public Student(int rollno, String name, String address)
+    {
+        this.rollno = rollno;
+        this.name = name;
+        this.address = address;
+    }
+  
+    // Used to print student details in main()
+    public String toString()
+    {
+        return this.rollno + " " + this.name + " "
+            + this.address;
+    }
+}
+  
+class Sortbyroll implements Comparator<Student> {
+    // Used for sorting in ascending order of
+    // roll number
+    public int compare(Student a, Student b)
+    {
+        return a.rollno - b.rollno;
+    }
+}
+  
+class Sortbyname implements Comparator<Student> {
+    // Used for sorting in ascending order of
+    // name
+    public int compare(Student a, Student b)
+    {
+        return a.name.compareTo(b.name);
+    }
+}
+  
+// Driver class
+class Main {
+    public static void main(String[] args)
+    {
+        ArrayList<Student> ar = new ArrayList<Student>();
+        ar.add(new Student(111, "bbbb", "london"));
+        ar.add(new Student(131, "aaaa", "nyc"));
+        ar.add(new Student(121, "cccc", "jaipur"));
+  
+        System.out.println("Unsorted");
+        for (int i = 0; i < ar.size(); i++)
+            System.out.println(ar.get(i));
+  
+        Collections.sort(ar, new Sortbyroll());
+  
+        System.out.println("\nSorted by rollno");
+        for (int i = 0; i < ar.size(); i++)
+            System.out.println(ar.get(i));
+  
+        Collections.sort(ar, new Sortbyname());
+  
+        System.out.println("\nSorted by name");
+        for (int i = 0; i < ar.size(); i++)
+            System.out.println(ar.get(i));
+    }
+}
+```
+```
+Output
+Unsorted
+111 bbbb london
+131 aaaa nyc
+121 cccc jaipur
+
+Sorted by rollno
+111 bbbb london
+121 cccc jaipur
+131 aaaa nyc
+
+Sorted by name
+131 aaaa nyc
+111 bbbb london
+121 cccc jaipur
 ```
 
-### NameComparator.java
-This class provides comparison logic based on the name. In such case, we are using the compareTo() method of String class, which internally provides the comparison logic.
+By changing the return value inside the compare method, you can sort in any order that you wish to. Eg. for descending order just change the positions of ‘a’ and ‘b’ in the above compare method.
+
+Sort collection by more than one field:
+
+In previous articles, we have discussed how to sort the list of objects on the basis of a single field using Comparable and Comparator interface But, what if we have a requirement to sort ArrayList objects in accordance with more than one fields like firstly, sort according to the student name and secondly, sort according to student age.
+Below is the implementation of the above approach: 
 
 ```java
-import java.util.*;  
-class NameComparator implements Comparator{  
-public int compare(Object o1,Object o2){  
-Student s1=(Student)o1;  
-Student s2=(Student)o2;  
+// Java program to demonstrate working of Comparator
+// interface more than one field
   
-return s1.name.compareTo(s2.name);  
-}  
-}  
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
+  
+class Student {
+  
+    // instance member variables
+    String Name;
+    int Age;
+  
+    // parameterized constructor
+    public Student(String Name, Integer Age)
+    {
+        this.Name = Name;
+        this.Age = Age;
+    }
+  
+    public String getName() { return Name; }
+  
+    public void setName(String Name) { this.Name = Name; }
+  
+    public Integer getAge() { return Age; }
+  
+    public void setAge(Integer Age) { this.Age = Age; }
+  
+    // overriding toString() method
+    @Override public String toString()
+    {
+        return "Customer{"
+            + "Name=" + Name + ", Age=" + Age + '}';
+    }
+  
+    static class CustomerSortingComparator
+        implements Comparator<Student> {
+  
+        @Override
+        public int compare(Student customer1,
+                           Student customer2)
+        {
+  
+            // for comparison
+            int NameCompare = customer1.getName().compareTo(
+                customer2.getName());
+            int AgeCompare = customer1.getAge().compareTo(
+                customer2.getAge());
+  
+            // 2-level comparison
+            return (NameCompare == 0) ? AgeCompare
+                                      : NameCompare;
+        }
+    }
+  
+    public static void main(String[] args)
+    {
+  
+        // create ArrayList to store Student
+        List<Student> al = new ArrayList<>();
+  
+        // create customer objects using constructor
+        // initialization
+        Student obj1 = new Student("Ajay", 27);
+        Student obj2 = new Student("Sneha", 23);
+        Student obj3 = new Student("Simran", 37);
+        Student obj4 = new Student("Ajay", 22);
+        Student obj5 = new Student("Ajay", 29);
+        Student obj6 = new Student("Sneha", 22);
+  
+        // add customer objects to ArrayList
+        al.add(obj1);
+        al.add(obj2);
+        al.add(obj3);
+        al.add(obj4);
+        al.add(obj5);
+        al.add(obj6);
+  
+        // before Sorting arraylist: iterate using Iterator
+        Iterator<Student> custIterator = al.iterator();
+  
+        System.out.println("Before Sorting:\n");
+        while (custIterator.hasNext()) {
+            System.out.println(custIterator.next());
+        }
+  
+        // sorting using Collections.sort(al, comparator);
+        Collections.sort(al,
+                         new CustomerSortingComparator());
+  
+        // after Sorting arraylist: iterate using enhanced
+        // for-loop
+        System.out.println("\n\nAfter Sorting:\n");
+        for (Student customer : al) {
+            System.out.println(customer);
+        }
+    }
+}
 ```
 
-### Simple.java
-In this class, we are printing the values of the object by sorting on the basis of name and age.
-
-```java
-import java.util.*;  
-import java.io.*;  
-  
-class Simple{  
-public static void main(String args[]){  
-  
-ArrayList al=new ArrayList();  
-al.add(new Student(101,"Vijay",23));  
-al.add(new Student(106,"Ajay",27));  
-al.add(new Student(105,"Jai",21));  
-  
-System.out.println("Sorting by Name");  
-  
-Collections.sort(al,new NameComparator());  
-Iterator itr=al.iterator();  
-while(itr.hasNext()){  
-Student st=(Student)itr.next();  
-System.out.println(st.rollno+" "+st.name+" "+st.age);  
-}  
-  
-System.out.println("Sorting by age");  
-  
-Collections.sort(al,new AgeComparator());  
-Iterator itr2=al.iterator();  
-while(itr2.hasNext()){  
-Student st=(Student)itr2.next();  
-System.out.println(st.rollno+" "+st.name+" "+st.age);  
-}  
-  
-  
-}  
-}  
 ```
+Output
+Before Sorting:
 
-### Java 8 Comparator interface
-Java 8 Comparator interface is a functional interface that contains only one abstract method. Now, we can use the Comparator interface as the assignment target for a lambda expression or method reference.
+Customer{Name=Ajay, Age=27}
+Customer{Name=Sneha, Age=23}
+Customer{Name=Simran, Age=37}
+Customer{Name=Ajay, Age=22}
+Customer{Name=Ajay, Age=29}
+Customer{Name=Sneha, Age=22}
 
+
+After Sorting:
+
+Customer{Name=Ajay, Age=22}
+Customer{Name=Ajay, Age=27}
+Customer{Name=Ajay, Age=29}
+Customer{Name=Simran, Age=37}
+Customer{Name=Sneha, Age=22}
+Customer{Name=Sneha, Age=23}
+```
