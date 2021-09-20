@@ -44,7 +44,7 @@ class Test
 {
 	public static void main(String[] args)
 	{
-		Demo object = new Demo(1, "geeksforgeeks");
+		Demo object = new Demo(1, "serialization");
 		String filename = "file.ser";
 		
 		// Serialization
