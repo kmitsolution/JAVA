@@ -1,5 +1,5 @@
 ```java
-String jdbcurl="jdbc:oracle:thin:@localhost:1521:XE";
+String jdbcurl="jdbc:oracle:thin:@localhost:1521/XEPDB1";
 	String driver="oracle.jdbc.driver.OracleDriver";
 	String username="system";
 	String password="India123";
