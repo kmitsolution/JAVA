@@ -122,4 +122,4 @@ public class MyDbHealthService implements HealthIndicator {
 }
 ```
 
-2.
+2. Run the application and check the /health and you will find Database health.
