@@ -250,6 +250,7 @@ import java.util.stream.Collectors;
 
 import com.user.entity.Contact;
 
+@Service
 public class ContactServiceImpl implements ContactService {
 
 	List<Contact> list= new ArrayList();
@@ -269,5 +270,97 @@ public class ContactServiceImpl implements ContactService {
 	}
 
 }
+```
+
+### Add Contact Controller
+```java
+package com.contact.controller;
+
+import java.util.List;
+
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.contact.service.ContactService;
+import com.user.entity.Contact;
+
+@RestController
+@RequestMapping("/contact")
+public class ContactController {
+	
+	@Autowired
+	private ContactService contactservice;
+	
+	@RequestMapping("/user/{userId}")
+	public List<Contact> getContacts(@PathVariable("userId") Long userId){
+	   return this.contactservice.getCotnactsofUser(userId);	
+	}
+}
 
 ```
+
+
+## Now we need that these 2 services should communicate to each other.
+
+### Step 8 Add @Bean and RestTemplate to UserApplication
+
+```java
+public class UserServiceApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(UserServiceApplication.class, args);
+	}
+
+	@Bean
+	public RestTemplate restTemplate() {
+		return new RestTemplate();
+	}
+}
+
+```
+
+### Step 9 Change UserController to add RestTemplate to communicate between 2 services
+
+```java
+package com.user.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+
+import com.user.entity.User;
+import com.user.service.UserService;
+
+@RestController
+@RequestMapping("/user")
+public class UserController {
+
+	@Autowired
+	private UserService userservice;
+	
+	@Autowired
+	private RestTemplate restTemplate;
+	@GetMapping("/{userid}")
+	public User getUser(@PathVariable("userid") Long userid) {
+		//return this.userservice.getUser(userid);
+		User user=this.userservice.getUser(userid);
+		
+		List contacts= this.restTemplate.getForObject("http://localhost:9002/contact/user/" + userid, List.class);
+		user.setContacts(contacts);
+		return user;
+	}
+}
+
+```
+
+### Step 10 Run User Application
+
+1. http://localhost:8080/user/111
+2. You will be able to find the contact details also with above url
+
