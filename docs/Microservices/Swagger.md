@@ -1,4 +1,5 @@
-
+## What is swagger used for?
+Swagger is a set of open-source tools built around the OpenAPI Specification that can help you design, build, document and consume REST APIs. The major Swagger tools include: Swagger Editor – browser-based editor where you can write OpenAPI specs. Swagger UI – renders OpenAPI specs as interactive API documentation.
 
 ### Step1 
 Create a Spring Boot project with Spring Initializer and add Web Dependency
