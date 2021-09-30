@@ -1,0 +1,273 @@
+# Microservice Project
+
+### Step 1:- Create a  spring boot project with Web Dependecies
+1. Create a Spring boot application using https://start.spring.io/
+2. Add Web dependency
+3. Generate the project
+
+### Step 2:- Create a user class and Contacts class 
+
+```java
+package com.user.entity;
+
+public class Contact {
+
+	private Long cId;
+	private String email;
+	private String contactName;
+	private Long userId;
+	public Contact(Long cId, String email, String contactName, Long userId) {
+		super();
+		this.cId = cId;
+		this.email = email;
+		this.contactName = contactName;
+		this.userId = userId;
+	}
+	public Contact() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+	public void setcId(Long cId) {
+		this.cId = cId;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	public void setContactName(String contactName) {
+		this.contactName = contactName;
+	}
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+	
+}
+
+```
+
+```java
+package com.user.entity;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class User {
+	
+	private Long userid;
+	private String name;
+	private String phone;
+	
+	List<Contact> contacts = new ArrayList<>();
+
+	public User(Long userid, String name, String phone, List<Contact> contacts) {
+		super();
+		this.userid = userid;
+		this.name = name;
+		this.phone = phone;
+		this.contacts = contacts;
+	}
+
+	public User(Long userid, String name, String phone) {
+		super();
+		this.userid = userid;
+		this.name = name;
+		this.phone = phone;
+	}
+
+	public User() {
+		super();
+	}
+
+	public void setUserid(Long userid) {
+		this.userid = userid;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+
+	public void setContacts(List<Contact> contacts) {
+		this.contacts = contacts;
+	}
+	
+	
+
+}
+
+```
+
+## Step3 Create user service
+
+```java
+package com.user.service;
+
+import com.user.entity.User;
+
+public interface UserService {
+
+	public User getUser(Long Id);
+}
+
+```
+
+## Step 4 Create user service implementation
+
+```java
+package com.user.service;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.user.entity.User;
+@Service
+public class UserServiceImpl implements UserService{
+
+	ArrayList<User> lists = new ArrayList<>();
+	
+	public UserServiceImpl() {
+		super();
+		lists.add(new User(111L, "Raman", "12345"));
+		lists.add(new User(112L, "Manoj", "123456"));
+		lists.add(new User(113L, "Rahul", "1234567"));
+		// TODO Auto-generated constructor stub
+	}
+
+
+	@Override
+	public User getUser(Long Id) {
+		// TODO Auto-generated method stub.
+		//return null;
+		return this.lists.stream().filter( user -> user.getUserid().equals(Id)).findAny().orElse(null);
+	}
+	
+}
+
+```
+
+### Step 5 Add Controller
+
+```java
+package com.user.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.user.entity.User;
+import com.user.service.UserService;
+
+@RestController
+@RequestMapping("/user")
+public class UserController {
+
+	@Autowired
+	private UserService userservice;
+	@GetMapping("/{userid}")
+	public User getUser(@PathVariable("userid") Long userid) {
+		return this.userservice.getUser(userid);
+	}
+}
+```
+
+# Lets Create 2nd Microservice for Contact
+
+1. https://start.spring.io/
+2. Add Web dependency
+3. Groupid:- com.contact
+4. Artifact id: contact_service
+5. Packagename :- com.contact
+
+### Step 6 Add Contact class
+
+```java
+package com.user.entity;
+
+public class Contact {
+
+	private Long cId;
+	private String email;
+	private String contactName;
+	private Long userId;
+	public Contact(Long cId, String email, String contactName, Long userId) {
+		super();
+		this.cId = cId;
+		this.email = email;
+		this.contactName = contactName;
+		this.userId = userId;
+	}
+	public Contact() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+	public void setcId(Long cId) {
+		this.cId = cId;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	public void setContactName(String contactName) {
+		this.contactName = contactName;
+	}
+	public void setUserId(Long userId) {
+		this.userId = userId;
+	}
+	
+}
+
+```
+
+### Step 7 Add ContactService Interface
+
+```java
+package com.contact.service;
+
+import java.util.List;
+
+import com.user.entity.Contact;
+
+public interface ContactService {
+
+	public List<Contact> getCotnactsofUser(Long userId);
+}
+
+```
+
+### Step 8 Add Service Implementation class
+
+```java
+package com.contact.service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import com.user.entity.Contact;
+
+public class ContactServiceImpl implements ContactService {
+
+	List<Contact> list= new ArrayList();
+	public ContactServiceImpl() {
+		super();
+		list.add(new Contact(1L,"raman@gmail.com","Raman",111L));
+		list.add(new Contact(1L,"raj@gmail.com","Raj",112L));
+		list.add(new Contact(1L,"Manoj@gmail.com","Manoj",113L));
+		list.add(new Contact(1L,"kunal@gmail.com","Kunal",114L));
+		// TODO Auto-generated constructor stub
+	}
+
+	@Override
+	public List<Contact> getCotnactsofUser(Long userId) {
+		// TODO Auto-generated method stub
+		return this.list.stream().filter( contact -> contact.getUserid().equals(Id)).collect(Collectors.toList());
+	}
+
+}
+
+```
