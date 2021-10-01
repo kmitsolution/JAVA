@@ -50,8 +50,13 @@ package com.user.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+package com.user.entity;
+
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class User {
-	
 	private Long userid;
 	private String name;
 	private String phone;
@@ -85,6 +90,22 @@ public class User {
 		this.name = name;
 	}
 
+	public Long getUserid() {
+		return userid;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public String getPhone() {
+		return phone;
+	}
+
+	public List<Contact> getContacts() {
+		return contacts;
+	}
+
 	public void setPhone(String phone) {
 		this.phone = phone;
 	}
@@ -92,7 +113,6 @@ public class User {
 	public void setContacts(List<Contact> contacts) {
 		this.contacts = contacts;
 	}
-	
 	
 
 }
