@@ -35,18 +35,49 @@ package com.redis.entity;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@Data
-@NoArgsConstructor
 @RedisHash("Product")
 public class Product {
 
-	@Id
+	
+	public Product() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+	public Product(int id, String name, int qty, long price) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.qty = qty;
+		this.price = price;
+	}
 	private int id;
+	public int getId() {
+		return id;
+	}
+	public String getName() {
+		return name;
+	}
+	public int getQty() {
+		return qty;
+	}
+	public long getPrice() {
+		return price;
+	}
 	private String name;
 	private int qty;
+	public void setId(int id) {
+		this.id = id;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public void setQty(int qty) {
+		this.qty = qty;
+	}
+	public void setPrice(long price) {
+		this.price = price;
+	}
 	private long price;
 }
 
