@@ -384,3 +384,153 @@ public class UserController {
 1. http://localhost:8080/user/111
 2. You will be able to find the contact details also with above url
 
+
+### Eureka Server for Service Discovery
+
+1. Create a spring boot project with Eureka Server Dependency 
+2. Open the project in Eclipse
+3. Add in the application.properties file
+```
+eureka.client.registerWithEureka = false
+eureka.client.fetchRegistry = false
+server.port = 8761
+```
+OR YOU CAN CREATE YAML FILE (application.yml)
+
+```
+eureka:
+   client:
+      registerWithEureka: false
+      fetchRegistry: false
+server:
+   port: 8761
+```
+
+4. Enable the Eureka Server
+```java
+package com.eserver;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
+
+@SpringBootApplication
+@EnableEurekaServer
+public class EserverApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(EserverApplication.class, args);
+	}
+
+}
+
+```
+
+6. Run the application
+7. visit http://localhost:8761/
+8. It should show the Eureka Server Interface
+9. Goto your user service project and Contact Service project and Add below dependecies of Eureka's clien
+```xml
+<properties>
+    <java.version>1.8</java.version>
+    <spring-cloud.version>2020.0.4</spring-cloud.version>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-dependencies</artifactId>
+        <version>${spring-cloud.version}</version>
+        <type>pom</type>
+        <scope>import</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+```
+10. Change in application.properties files to add the service name
+
+```
+spring.application.name=user-service
+```
+11. Make similar changes in contact service
+12. In user-service replace "http://localhost:9002/contact/user/ with "http://contact-service/contact/user/
+13. In user application add @LoadBalanced Annotation
+```java
+package com.user;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
+
+@SpringBootApplication
+public class UserServiceApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(UserServiceApplication.class, args);
+	}
+
+	@Bean
+	@LoadBalanced
+	public RestTemplate restTemplate() {
+		return new RestTemplate();
+	}
+}
+```
+
+14. Check http://localhost:8080/user/111 , you should be able to see the result.
+
+
+### API GATEWAY
+
+1. Create a Spring Boot project 
+2. add Dependency spring Routing Gateway,Eureka Discovery Client, Acutator
+3. Generate the project
+4. Open in Eclipse
+5. Enable Eureka Client
+```java
+package com.apiGateway;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+
+@SpringBootApplication
+@EnableEurekaClient
+public class ApigatewayApplication {
+
+	public static void main(String[] args) {
+		SpringApplication.run(ApigatewayApplication.class, args);
+	}
+
+}
+```
+6. Add in application properties
+```
+server.port=8999
+
+spring.application.name=ApiGateway
+
+spring.cloud.gateway.discovery.locator.lower-case-service-id=true
+spring.cloud.gateway.routes[0].id=user-service
+spring.cloud.gateway.routes[0].uri=lb://user-service
+spring.cloud.gateway.routes[0].predicates[0]=Path=/user/**
+
+
+```
+7. Run the application on port number 8999 http://localhost:8999/user/111
+8. You should get invoke the service
