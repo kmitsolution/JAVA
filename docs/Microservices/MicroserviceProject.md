@@ -530,6 +530,10 @@ spring.cloud.gateway.routes[0].id=user-service
 spring.cloud.gateway.routes[0].uri=lb://user-service
 spring.cloud.gateway.routes[0].predicates[0]=Path=/user/**
 
+spring.cloud.gateway.routes[1].id=contact-service
+spring.cloud.gateway.routes[1].uri=lb://contact-service
+spring.cloud.gateway.routes[1].predicates[0]=Path=/contact/user/**
+
 
 ```
 7. Run the application on port number 8999 http://localhost:8999/user/111
