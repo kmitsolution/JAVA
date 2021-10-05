@@ -294,3 +294,149 @@ public class loginController {
 </html>
 ```
 
+
+### BootStrap with Jsp
+
+```java
+package com.login;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+@Controller
+public class loginController {
+
+	@RequestMapping("/login")
+	public String loginpage()
+	{
+		return "loginpage.jsp";
+	}
+	
+	@RequestMapping("/access")
+	public ModelAndView login(HttpServletRequest request, HttpServletResponse response) {
+		String uname= request.getParameter("user");
+		String pass= request.getParameter("pass");
+		ModelAndView mv = new ModelAndView();
+		mv.setViewName("access.jsp");
+		if ( uname.equals("raman") && pass.equals("raja"))
+		{
+			mv.addObject("result","ok");
+		}
+		else
+			mv.addObject("result","Access Denied");
+		return mv;
+	}
+	
+	  @RequestMapping("/home")
+	    public String Home( Model m) //added Model 
+		{
+			
+	    	String str="home";
+	    	//Adding the attribute name and use name attribute in jsp page
+	    	// JSLT dependency is required for this
+	    	m.addAttribute("page",str); 
+	    	return "home.jsp";
+		}
+	  @RequestMapping("/main")
+	    public String Main1( Model m) //added Model 
+		{
+			
+	    	String str="Main";
+	    	//Adding the attribute name and use name attribute in jsp page
+	    	// JSLT dependency is required for this
+	    	m.addAttribute("page",str); 
+	    	return "main.jsp";
+		}
+	  @RequestMapping("/intro")
+	    public String intro( Model m) //added Model 
+		{
+			
+	    	String str="Main";
+	    	//Adding the attribute name and use name attribute in jsp page
+	    	// JSLT dependency is required for this
+	    	m.addAttribute("page",str); 
+	    	return "intro.jsp";
+		}
+	   
+}
+
+```
+
+```html
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+<%@ taglib uri = "http://java.sun.com/jsp/jstl/core" prefix = "c" %>  
+	<%@page isELIgnored="false" %>      
+	
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-F3w7mX95PdgyTmZZMECAngseQB83DfGTowi0iMjiWaeVhAn4FJkqJByhZMI3AhiU" crossorigin="anonymous">
+
+    <title>Home</title>
+  </head>
+  <body>
+    <div class="container mt-3">
+    <h1>Customer Form</h1>
+   <div class="row mt-4">
+    <div class="col-md-2">
+       <h3 class="text-center">Menu</h3>
+       <div class="list-group">
+		  <button type="button" class="list-group-item list-group-item-action active" aria-current="true">
+		    Home
+		  </button>
+		  <button type="button" class="list-group-item list-group-item-action">
+		  <a href='<c:url value='/intro'></c:url>' >
+		    Intro
+		  </a>
+		  </button>
+		  <button type="button" class="list-group-item list-group-item-action">
+		  <a href='<c:url value='/main'></c:url>' >
+		    Main
+		  </a>
+		  </button>
+		  </div>
+    </div>
+    <div class="col-md-10">
+     <c:if test="${ page =='home' }">
+       <h1 class="text-center">Home Page</h1>
+      </c:if>
+      <c:if test="${ page =='intro' }">
+       <h1 class="text-center">Intro Page</h1>
+      </c:if>
+      <c:if test="${ page =='main' }">
+       <h1 class="text-center">Main Page</h1>
+      </c:if> 
+    </div>
+    </div>
+    </div>
+
+    
+    
+    
+    
+    
+    
+    <!-- Optional JavaScript; choose one of the two! -->
+
+    <!-- Option 1: Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-/bQdsTh/da6pkI1MST/rWKFNjaCP5gBSY4sEBT38Q/9RBh9AH40zEOg7Hlq2THRZ" crossorigin="anonymous"></script>
+
+    <!-- Option 2: Separate Popper and Bootstrap JS -->
+    <!--
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js" integrity="sha384-W8fXfP3gkOKtndU4JGtKDvXbO53Wy8SZCQHczT5FMiiqmQfUpWbYdTil/SxwZgAN" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.1/dist/js/bootstrap.min.js" integrity="sha384-skAcpIdS7UcVUC05LJ9Dxay8AXcDYfBJqt1CJ85S/CFujBsIzCIv+l9liuYLaMQ/" crossorigin="anonymous"></script>
+    -->
+  </body>
+</html>
+```
