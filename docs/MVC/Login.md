@@ -180,3 +180,17 @@ Permission = ${result}
 ```
 
 11. Run the application 
+
+12. Add JSLT dependency which is required for accessing the data to jsp. 
+    	<dependency>
+	    <groupId>jstl</groupId>
+	    <artifactId>jstl</artifactId>
+	    <version>1.2</version>
+	</dependency>
+13. Add JSLT core ui tag in home.jsp
+	<%@ taglib uri = "http://java.sun.com/jsp/jstl/core" prefix = "c" %>  
+	<%@page isELIgnored="false" %>  
+
+	In the content section lets extract value of name attribute
+
+	<c:out value = "${ name }"/>
