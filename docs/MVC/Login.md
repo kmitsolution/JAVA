@@ -200,3 +200,97 @@ Permission = ${result}
 
 	<c:out value = "${ result }"/>
 ```
+
+```java
+package com.login;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+@Controller
+public class loginController {
+
+	@RequestMapping("/login")
+	public String loginpage()
+	{
+		return "loginpage.jsp";
+	}
+	
+	@RequestMapping("/access")
+	public ModelAndView login(HttpServletRequest request, HttpServletResponse response) {
+		String uname= request.getParameter("user");
+		String pass= request.getParameter("pass");
+		ModelAndView mv = new ModelAndView();
+		mv.setViewName("access.jsp");
+		if ( uname.equals("raman") && pass.equals("raja"))
+		{
+			mv.addObject("result","ok");
+		}
+		else
+			mv.addObject("result","Access Denied");
+		return mv;
+	}
+	
+	  @RequestMapping("/home")
+	    public String Home( Model m) //added Model 
+		{
+			
+	    	String str="home";
+	    	//Adding the attribute name and use name attribute in jsp page
+	    	// JSLT dependency is required for this
+	    	m.addAttribute("page",str); 
+	    	return "home.jsp";
+		}
+	  @RequestMapping("/main")
+	    public String Main1( Model m) //added Model 
+		{
+			
+	    	String str="Main";
+	    	//Adding the attribute name and use name attribute in jsp page
+	    	// JSLT dependency is required for this
+	    	m.addAttribute("page",str); 
+	    	return "home.jsp";
+		}
+	   
+}
+
+```
+
+```html
+<%@ page language="java" contentType="text/html; charset=ISO-8859-1"
+    pageEncoding="ISO-8859-1"%>
+<%@ taglib uri = "http://java.sun.com/jsp/jstl/core" prefix = "c" %>  
+	<%@page isELIgnored="false" %>      
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Home</title>
+</head>
+<body>
+<c:out value = "${ page }"/>
+
+<div class="col-md-10">
+         <c:if test="${page=='home' }">
+            <h1>This is home page</h1>
+          </c:if>
+          <c:if test="${page=='add' }">
+            <h1>This is add page</h1>
+          </c:if>
+       </div>
+<form action="intro">
+<input type=submit value=intro >       	
+</body>
+
+<form action="main">
+<input type=submit value=main >
+</form>
+
+</html>
+```
+
