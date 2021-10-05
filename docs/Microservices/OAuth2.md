@@ -13,7 +13,8 @@ OAuth 2.0 is an authorization protocol and NOT an authentication protocol. As su
 
 2. Check your applicaiton it should ask for the Form level Authentication.
 3. Create a Github app (Settings -->Developer Settings ---> Github App and Get Client ID and Secret key)
-4. In application properties file add below lines
+4. callback value is http://localhost:9000/login/oauth2/code/github
+5. In application properties file add below lines
 ```
 
 spring.security.oauth2.client.registration.github.clientId =  
