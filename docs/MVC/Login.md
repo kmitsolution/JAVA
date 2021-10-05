@@ -296,7 +296,40 @@ public class loginController {
 
 
 ### BootStrap with Jsp
+```java
+package com.login;
 
+public class Test {
+public Test(String id, String name) {
+		super();
+		this.id = id;
+		this.name = name;
+	}
+private String id;
+private String name;
+public void setId(String id) {
+	this.id = id;
+}
+public void setName(String name) {
+	this.name = name;
+}
+public String getId() {
+	return id;
+}
+public String getName() {
+	return name;
+}
+@Override
+public String toString() {
+	return "Test [id=" + id + ", name=" + name + "]";
+}
+public Test() {
+	super();
+	// TODO Auto-generated constructor stub
+}
+}
+
+```
 ```java
 package com.login;
 
