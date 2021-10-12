@@ -43,7 +43,9 @@ public class RestControllerSec {
 4. Run the application. Provide user name as "user" and password as token
 
 5. Add the username and password in application.properties file
+
 spring.security.user.name=raman
+
 spring.security.user.password=mypass
 
 6. Run the application and now we can pass above username and password to access the getmsg
